@@ -485,6 +485,9 @@
         }
 
         function resetGame() {
+            // Ensure canvas is properly sized
+            resizeCanvas();
+            
             player.x = canvas.width / 2;
             player.y = canvas.height - 100;
             player.health = player.maxHealth;
@@ -521,7 +524,11 @@
             };
             
             updateUI();
-            spawnEnemyWave();
+            
+            // Spawn first wave with a short delay
+            setTimeout(() => {
+                spawnEnemyWave();
+            }, 500);
         }
 
         function pauseGame() {
@@ -735,9 +742,15 @@
             
             for (let i = 0; i < waveSize; i++) {
                 setTimeout(() => {
-                    const type = enemyTypes[Math.floor(Math.random() * Math.min(enemyTypes.length, 1 + Math.floor(wave / 2)))];
+                    // Ensure canvas is properly sized
+                    if (canvas.width === 0 || canvas.height === 0) {
+                        resizeCanvas();
+                    }
+                    
+                    const maxTypes = Math.min(enemyTypes.length, 1 + Math.floor(wave / 2));
+                    const type = enemyTypes[Math.floor(Math.random() * maxTypes)];
                     enemies.push(createEnemy(type));
-                }, i * 500);
+                }, i * 300); // Reduced delay for faster spawning
             }
         }
 
@@ -753,7 +766,7 @@
                 color: '#ff4444',
                 type: type,
                 shootTimer: 0,
-                movePattern: Math.random() * 4,
+                movePattern: Math.floor(Math.random() * 4),
                 angle: 0,
                 bulletSpeed: 0
             };
@@ -814,6 +827,9 @@
                         if (Math.random() < 0.02) {
                             enemy.x += (Math.random() - 0.5) * 4;
                         }
+                        break;
+                    default: // Fallback - straight down
+                        enemy.y += enemy.speed;
                         break;
                 }
                 
